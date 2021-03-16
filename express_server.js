@@ -15,37 +15,47 @@ const urlDatabase = {
   "12sM3I": "http://www.youtube.com"
 };
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
+// 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-const generateRandomString = () => {
-  return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
-};
-
-app.post("/urls", (req, res) => {
-  newShortUrl = generateRandomString();
- urlDatabase[newShortUrl] = req.body.longURL; 
-  res.redirect(`/urls/${newShortUrl}`);
-});
-
+// 'get' the url post page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// Add new url page
+app.post("/urls", (req, res) => {
+  const generateRandomString = () => {
+    return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
+  };
+  newShortUrl = generateRandomString();
+ urlDatabase[newShortUrl] = req.body.longURL; 
+  res.redirect(`/urls/${newShortUrl}`);
+});
+// Delete an existing url
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect(`/urls/`);
+});
+
+// 'get' the generated shortURL page
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
+
+// 'get' the given short url page which redirects the page to the longURL
+// basically, the /urls/:shortURL has a href which directs to this page, which then uses
+// this function to direct to the actual longURL page.
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
