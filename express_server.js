@@ -27,11 +27,12 @@ app.get("/urls/new", (req, res) => {
 });
 
 // Add new url page
-app.post("/urls", (req, res) => {
+app.post("/urls/new", (req, res) => {
   const generateRandomString = () => {
     return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
   };
   newShortUrl = generateRandomString();
+  console.log(req.body)
  urlDatabase[newShortUrl] = req.body.longURL; 
   res.redirect(`/urls/${newShortUrl}`);
 });
