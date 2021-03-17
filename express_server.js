@@ -64,17 +64,19 @@ app.get("/urls/:shortURL", (req, res) => {
 // basically, the /urls/:shortURL has a href which directs to this page, which then uses
 // this function to direct to the actual longURL page.
 app.get("/u/:shortURL", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"]
-  }
   const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL, templateVars);
+  res.redirect(longURL);
 });
 
-// adding a login POST function;
+// login POST function;
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   console.log(req.body.username); //keep here for now, see what username is passed
+  res.redirect('/urls');
+})
+// logout POST function;
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
   res.redirect('/urls');
 })
 
