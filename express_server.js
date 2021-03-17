@@ -37,17 +37,23 @@ const generateRandomString = () => {
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+
+  const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
-  };
+    'user_id'  : users[req.cookies['user_id']]
+  }
+  // const templateVars = { 
+  //   urls: urlDatabase,
+  //   username: req.cookies["username"]
+  // };
+  console.log(templateVars['user_id']);
   res.render("urls_index", templateVars);
 });
 
 // 'get' the url post page
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    username: req.cookies["userID"]
   }
   res.render("urls_new", templateVars);
 });
@@ -114,6 +120,7 @@ app.post("/register", (req, res) => {
   users[userID] = { userID, email, password };
   res.cookie('user_id', userID);
   res.redirect('/urls');
+  console.log(users[userID]);
 });
 
 
