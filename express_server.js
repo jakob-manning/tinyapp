@@ -17,15 +17,22 @@ const urlDatabase = {
   "12sM3I": "http://www.youtube.com"
 };
 
+
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"],
+  };
   res.render("urls_index", templateVars);
 });
 
 // 'get' the url post page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
 });
 
 // Add new url page
@@ -49,7 +56,7 @@ app.post("/urls/:id", (req, res) => {
 });
 // 'get' the generated shortURL page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
@@ -57,8 +64,11 @@ app.get("/urls/:shortURL", (req, res) => {
 // basically, the /urls/:shortURL has a href which directs to this page, which then uses
 // this function to direct to the actual longURL page.
 app.get("/u/:shortURL", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"]
+  }
   const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  res.redirect(longURL, templateVars);
 });
 
 // adding a login POST function;
