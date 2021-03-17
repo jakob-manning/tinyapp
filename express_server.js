@@ -39,7 +39,7 @@ const generateRandomString = () => {
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"],
+    username: req.cookies["username"]
   };
   res.render("urls_index", templateVars);
 });
@@ -112,7 +112,8 @@ app.post("/register", (req, res) => {
   email = req.body.email;
   password = req.body.password;
   users[userID] = { userID, email, password };
-  console.log(users[userID]);
+  res.cookie('user_id', userID);
+  res.redirect('/urls');
 });
 
 
