@@ -11,17 +11,20 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
 app.use(cookieParser());
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "12sM3I": "http://www.youtube.com"
-};
 
+//----------------------------------//
+
+// Data
+
+const urlDatabase = {
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "eeeeee" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "eeeeee" }
+};
 const users = { 
-  "123456": {
-    id: "123456", 
-    email: "user@example.com", 
-    password: "test"
+  "eeeeee": {
+    id: "eeeeee", 
+    email: "e@e.e",
+    password: "e"
   },
  "abcdef": {
     id: "abcdef", 
@@ -29,6 +32,8 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+// ----------------------------------//
+
 
 // This function is used to generate IDs or shortURLS
 
@@ -50,27 +55,61 @@ const isEmailAlreadyUsed = (email) => {
   return user_id;
 };
 
+// Function that checks whether a person is logged in as registered user
+// Takes user_id and makes sure users[user_id] = truthy;
+
+// 
+// // const user_id = req.cookies['user_id'];
+// if (isCookieValid(req.cookies['user_id'])) {
+//   const templateVars = {
+//     'user_id'  : users[req.cookies['user_id']]
+//   }
+//   res.render("urls_new", templateVars);
+// }
+
+// else {
+//   res.redirect("/login");
+// }
+
+const isCookieValid = user_id => users[user_id] !== undefined;
+
 
 //----------------------------------//
 
+
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
-  // console.log(users);
+  
+  const userUrls = {};
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userID === req.cookies['user_id']) {
+      userUrls[url] = urlDatabase[url].longURL;
+    }
+  }
+  console.log(userUrls);
+
   const templateVars = {
-    urls: urlDatabase,
+    urls: userUrls,
     'user_id': users[req.cookies['user_id']]
   }
-  // console.log(req.cookies);
-  // console.log(templateVars.user_id);
+
   res.render("urls_index", templateVars);
 });
 
-// 'get' the add new url page
+// 'get' the add new url page. If they are not logged in, do not alow 
+// them to access this page
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    'user_id'  : users[req.cookies['user_id']]
+
+  if (isCookieValid(req.cookies['user_id'])) {
+    const templateVars = {
+      'user_id'  : users[req.cookies['user_id']]
+    }
+    res.render("urls_new", templateVars);
   }
-  res.render("urls_new", templateVars);
+  
+  else {
+    res.redirect("/login");
+  }
 });
 
 // POST function for new url page
@@ -175,7 +214,6 @@ app.post("/register", (req, res) => {
   res.redirect('/urls');
   console.log(users[id]);
   }
-
 });
 
 app.listen(PORT, () => {
