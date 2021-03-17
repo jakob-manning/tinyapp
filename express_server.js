@@ -38,6 +38,7 @@ const generateRandomString = () => {
 
 // This function is used to check whether an email given by user
 // matches an email already stored in our database
+// returns six digit user_id if match, empty string if no match found
 
 const isEmailAlreadyUsed = (email) => {
   let user_id = '';
@@ -119,6 +120,11 @@ app.post("/login", (req, res) => {
       res.cookie('user_id', user_id);
       res.redirect('/urls');
       console.log(users[id]);
+  }
+
+  else if (!user_id) {
+    res.statusCode = 403;
+    res.end('no email address found');
   }
 
   else {
