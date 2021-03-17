@@ -28,7 +28,12 @@ const users = {
     email: "user2@example.com", 
     password: "dishwasher-funk"
   }
-}
+};
+// This function is used to generate IDs or shortURLS
+
+const generateRandomString = () => {
+  return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
+};
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
@@ -49,9 +54,6 @@ app.get("/urls/new", (req, res) => {
 
 // Add new url page
 app.post("/urls/new", (req, res) => {
-  const generateRandomString = () => {
-    return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
-  };
   newShortUrl = generateRandomString();
   urlDatabase[newShortUrl] = req.body.longURL; 
   res.redirect(`/urls/${newShortUrl}`);
@@ -104,7 +106,14 @@ app.get("/register", (req, res) => {
   res.render("register",templateVars)
 });
 
-// Add 
+// register POST function 
+app.post("/register", (req, res) => {
+  userID = generateRandomString();
+  email = req.body.email;
+  password = req.body.password;
+  users[userID] = { userID, email, password };
+  console.log(users[userID]);
+});
 
 
 app.listen(PORT, () => {
