@@ -44,16 +44,19 @@ app.post("/urls/new", (req, res) => {
   urlDatabase[newShortUrl] = req.body.longURL; 
   res.redirect(`/urls/${newShortUrl}`);
 });
+
 // Delete an existing url
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls/`);
 });
+
 // Edit an existing url
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect(`/urls/`);
 });
+
 // 'get' the generated shortURL page
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
