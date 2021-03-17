@@ -32,8 +32,7 @@ app.post("/urls/new", (req, res) => {
     return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
   };
   newShortUrl = generateRandomString();
-  console.log(req.body)
- urlDatabase[newShortUrl] = req.body.longURL; 
+  urlDatabase[newShortUrl] = req.body.longURL; 
   res.redirect(`/urls/${newShortUrl}`);
 });
 // Delete an existing url
