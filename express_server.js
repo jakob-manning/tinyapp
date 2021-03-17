@@ -21,7 +21,7 @@ const users = {
   "123456": {
     id: "123456", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "test"
   },
  "abcdef": {
     id: "abcdef", 
@@ -35,6 +35,22 @@ const users = {
 const generateRandomString = () => {
   return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
 };
+
+// This function is used to check whether an email given by user
+// matches an email already stored in our database
+
+const isEmailAlreadyUsed = (email) => {
+  let user_id = '';
+  for (const user in users) {
+    if (users[user].email === email) {
+      user_id = user;
+    }
+  }
+  return user_id;
+};
+
+
+//----------------------------------//
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
@@ -98,10 +114,19 @@ app.get("/login", (req, res) => {
 
 // login POST function;
 app.post("/login", (req, res) => {
-  res.cookie('user_id', req.body.user_id);
-  // console.log(req.body['user_id']); //keep here for now, see what username is passed
-  res.redirect('/urls');
+  user_id = isEmailAlreadyUsed(req.body.email);
+  if (user_id && req.body.password === users[user_id].password) {
+      res.cookie('user_id', user_id);
+      res.redirect('/urls');
+      console.log(users[id]);
+  }
+
+  else {
+    res.statusCode = 404;
+    res.end('invalid login credentials');
+  }
 });
+
 // logout POST function;
 app.post("/logout", (req, res) => {
   // console.log(users['user_id'])
@@ -114,7 +139,6 @@ app.get("/register", (req, res) => {
   const templateVars = {
     'user_id'  : users[req.cookies['user_id']]
   }
-  // console.log(req.body);
   res.render("register",templateVars)
 });
 
@@ -122,17 +146,8 @@ app.get("/register", (req, res) => {
 // has 2 error handling conditions:
 // first if handles if either email or password has a empty space in it
 // second if handles if email is a previously stored email.
-app.post("/register", (req, res) => {
 
-  const isEmailAlreadyUsed = (email) => {
-    let alreadyUsed = false;
-    for (const user in users) {
-      if (users[user].email === email) {
-        alreadyUsed = true;
-      }
-    }
-    return alreadyUsed;
-  };
+app.post("/register", (req, res) => {
 
   if (req.body.email.includes(' ') ||
       req.body.password.includes(' ')) {
@@ -154,8 +169,8 @@ app.post("/register", (req, res) => {
   res.redirect('/urls');
   console.log(users[id]);
   }
-});
 
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
