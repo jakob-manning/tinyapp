@@ -5,9 +5,11 @@ app.set("view engine", "ejs");
 
 const morgan = require('morgan');
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -59,8 +61,9 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+// adding a login POST function;
 app.post("/login", (req, res) => {
-  res.cookie(req.body.username);
+  res.cookie('username', req.body.username);
   console.log(req.body.username); //keep here for now, see what username is passed
   res.redirect('/urls');
 })
