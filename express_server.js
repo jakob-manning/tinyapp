@@ -42,18 +42,14 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     'user_id'  : users[req.cookies['user_id']]
   }
-  // const templateVars = { 
-  //   urls: urlDatabase,
-  //   username: req.cookies["username"]
-  // };
-  console.log(templateVars['user_id']);
+  console.log(templateVars.user_id);
   res.render("urls_index", templateVars);
 });
 
 // 'get' the url post page
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["userID"]
+    'user_id'  : users[req.cookies['user_id']]
   }
   res.render("urls_new", templateVars);
 });
@@ -79,7 +75,7 @@ app.post("/urls/:id", (req, res) => {
 
 // 'get' the generated shortURL page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], 'user_id'  : users[req.cookies['user_id']]};
   res.render("urls_show", templateVars);
 });
 
@@ -93,20 +89,21 @@ app.get("/u/:shortURL", (req, res) => {
 
 // login POST function;
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  console.log(req.body.username); //keep here for now, see what username is passed
+  res.cookie('user_id', req.body.user_id);
+  console.log(req.body['user_id']); //keep here for now, see what username is passed
   res.redirect('/urls');
 });
 // logout POST function;
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
+  console.log(users['user_id'])
+  res.clearCookie('user_id');
+  res.redirect('/urls/');
 });
 
 // 'get the register new user page:
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    'user_id'  : users[req.cookies['user_id']]
   }
   console.log(req.body);
   res.render("register",templateVars)
@@ -114,13 +111,13 @@ app.get("/register", (req, res) => {
 
 // register POST function 
 app.post("/register", (req, res) => {
-  userID = generateRandomString();
+  id = generateRandomString();
   email = req.body.email;
   password = req.body.password;
-  users[userID] = { userID, email, password };
-  res.cookie('user_id', userID);
+  users[id] = { id, email, password };
+  res.cookie('user_id', id);
   res.redirect('/urls');
-  console.log(users[userID]);
+  console.log(users[id]);
 });
 
 
