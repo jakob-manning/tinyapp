@@ -24,10 +24,14 @@
       </form>
     <% } %>
     <% if(user_id === undefined) { %>
-    <form action="/login" method="POST">
-      <p><input class="form-center" type="text" name="email?" placeholder="dont use for now" style="width: 200px; margin: 1em">
-      <button type="submit" class="btn-info">Login</button></p>
-    </form>
+      <form action="/login" method="GET">
+        <label for="login"> Login Here! </label>
+        <button type="submit" class="btn-info">Login</button></p>
+      </form>
+      <form action="/register" method="GET">
+        <label for="register"> Register Here! </label>
+        <button type="submit" class="btn-submit">Register</button></p>
+      </form>
     <% } %>
   </nav>
 </header>

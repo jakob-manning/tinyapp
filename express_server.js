@@ -29,6 +29,7 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
 // This function is used to generate IDs or shortURLS
 
 const generateRandomString = () => {
@@ -47,7 +48,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// 'get' the url post page
+// 'get' the add new url page
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     'user_id'  : users[req.cookies['user_id']]
@@ -55,7 +56,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// Add new url page
+// POST function for new url page
 app.post("/urls/new", (req, res) => {
   newShortUrl = generateRandomString();
   urlDatabase[newShortUrl] = req.body.longURL; 
@@ -86,6 +87,13 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = {
+    'user_id'  : users[req.cookies['user_id']]
+  }
+  res.render("login", templateVars);
 });
 
 // login POST function;
