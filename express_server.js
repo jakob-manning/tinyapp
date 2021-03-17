@@ -18,13 +18,13 @@ const urlDatabase = {
 };
 
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
+  "123456": {
+    id: "123456", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
+ "abcdef": {
+    id: "abcdef", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
   }
@@ -37,12 +37,13 @@ const generateRandomString = () => {
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
-
+  // console.log(users);
   const templateVars = {
     urls: urlDatabase,
-    'user_id'  : users[req.cookies['user_id']]
+    'user_id': users[req.cookies['user_id']]
   }
-  console.log(templateVars.user_id);
+  // console.log(req.cookies);
+  // console.log(templateVars.user_id);
   res.render("urls_index", templateVars);
 });
 
@@ -90,12 +91,12 @@ app.get("/u/:shortURL", (req, res) => {
 // login POST function;
 app.post("/login", (req, res) => {
   res.cookie('user_id', req.body.user_id);
-  console.log(req.body['user_id']); //keep here for now, see what username is passed
+  // console.log(req.body['user_id']); //keep here for now, see what username is passed
   res.redirect('/urls');
 });
 // logout POST function;
 app.post("/logout", (req, res) => {
-  console.log(users['user_id'])
+  // console.log(users['user_id'])
   res.clearCookie('user_id');
   res.redirect('/urls/');
 });
@@ -105,12 +106,38 @@ app.get("/register", (req, res) => {
   const templateVars = {
     'user_id'  : users[req.cookies['user_id']]
   }
-  console.log(req.body);
+  // console.log(req.body);
   res.render("register",templateVars)
 });
 
 // register POST function 
+// has 2 error handling conditions:
+// first if handles if either email or password has a empty space in it
+// second if handles if email is a previously stored email.
 app.post("/register", (req, res) => {
+
+  const isEmailAlreadyUsed = (email) => {
+    let alreadyUsed = false;
+    for (const user in users) {
+      if (users[user].email === email) {
+        alreadyUsed = true;
+      }
+    }
+    return alreadyUsed;
+  };
+
+  if (req.body.email.includes(' ') ||
+      req.body.password.includes(' ')) {
+    res.statusCode = 404;
+    res.end('put in proper email and password');
+  }
+  
+  else if (isEmailAlreadyUsed(req.body.email)) {
+    res.statusCode = 404;
+    res.end('email Already used');
+  }
+  
+  else {
   id = generateRandomString();
   email = req.body.email;
   password = req.body.password;
@@ -118,6 +145,7 @@ app.post("/register", (req, res) => {
   res.cookie('user_id', id);
   res.redirect('/urls');
   console.log(users[id]);
+  }
 });
 
 
