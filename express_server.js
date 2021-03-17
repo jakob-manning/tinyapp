@@ -17,6 +17,18 @@ const urlDatabase = {
   "12sM3I": "http://www.youtube.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
@@ -76,21 +88,23 @@ app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   console.log(req.body.username); //keep here for now, see what username is passed
   res.redirect('/urls');
-})
+});
 // logout POST function;
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
-})
+});
 
-// register new user:
+// 'get the register new user page:
 app.get("/register", (req, res) => {
   const templateVars = {
     username: req.cookies["username"]
   }
   console.log(req.body);
   res.render("register",templateVars)
-})
+});
+
+// Add 
 
 
 app.listen(PORT, () => {

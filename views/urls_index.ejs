@@ -17,8 +17,8 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
-          <th scope="col">Delete</th>
           <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -26,8 +26,8 @@
           <tr>
             <td><a href="/u/<%= url %>"><%= url %></a></td>
             <td><%= urls[url] %></td>
-            <td><form method="POST" action="/urls/<%= url %>/delete"><button type="submit" class="btn-danger">Delete</button></form></td>
             <td><form method="GET" action="/urls/<%= url %>"><button type="submit" class="btn-warning">Edit</button></form></td>
+            <td><form method="POST" action="/urls/<%= url %>/delete"><button type="submit" class="btn-danger">Delete</button></form></td>
           </tr>
         <% } %>
       </tbody>
