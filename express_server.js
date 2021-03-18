@@ -55,6 +55,10 @@ const isEmailAlreadyUsed = (email) => {
   return user_id;
 };
 
+// Function that filters the url Database and creates an object
+// of URLS that match the given user_id, 
+// in the form of { shortURL: longURL } key value pairs.
+
 const userUrls = (user_id) => {
   const output = {};
   for (const url in urlDatabase) {
@@ -76,8 +80,6 @@ const isCookieValid = user_id => users[user_id] !== undefined;
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
-  
-
 
   const templateVars = {
     urls: userUrls(req.cookies['user_id']),
@@ -132,8 +134,15 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Delete an existing url
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls`);
+  if (urlDatabase[req.params.shortURL].userID === req.cookies['user_id']) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect(`/urls`);
+  } 
+  
+  else {
+    res.redirect(`/login`);
+  }
+
 });
 
 // Edit an existing url
@@ -142,6 +151,7 @@ app.post("/urls/:id", (req, res) => {
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.redirect(`/urls`);
   }
+
   else {
     res.redirect(`/login`);
   }
