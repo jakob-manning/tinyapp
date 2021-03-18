@@ -248,6 +248,10 @@ app.post("/register", (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  isCookieValid(req.session.user_id, users) ? res.redirect('/urls') : res.redirect('/login');
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
