@@ -55,6 +55,16 @@ const isEmailAlreadyUsed = (email) => {
   return user_id;
 };
 
+const userUrls = (user_id) => {
+  const output = {};
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userID === user_id) {
+      output[url] = urlDatabase[url].longURL;
+    }
+  }
+  return output;
+}; 
+
 // Function that checks whether a person is logged in as registered user
 // Takes user_id and makes sure users[user_id] = truthy;
 
@@ -67,16 +77,10 @@ const isCookieValid = user_id => users[user_id] !== undefined;
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
   
-  const userUrls = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url].userID === req.cookies['user_id']) {
-      userUrls[url] = urlDatabase[url].longURL;
-    }
-  }
-  console.log(userUrls);
+
 
   const templateVars = {
-    urls: userUrls,
+    urls: userUrls(req.cookies['user_id']),
     'user_id': users[req.cookies['user_id']]
   }
 
