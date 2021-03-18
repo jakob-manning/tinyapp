@@ -4,7 +4,8 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 const bcrypt = require('bcrypt');
 
-
+// ----------------------------------//
+// MiddleWare
 const morgan = require('morgan');
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
@@ -16,9 +17,15 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }))
 
+// ----------------------------------//
+// Helper functions
+const { generateRandomString } = require("./helpers");
+const { userUrls } = require("./helpers");
+const { getUserByEmail } = require("./helpers");
+const { isCookieValid } = require("./helpers");
+
 
 //----------------------------------//
-
 // Data
 
 const urlDatabase = {
@@ -40,57 +47,15 @@ const users = {
     password: password2
   }
 };
-// ----------------------------------//
-
-
-// This function is used to generate IDs or shortURLS
-
-const generateRandomString = () => {
-  return Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
-};
-
-// This function is used to check whether an email given by user
-// matches an email already stored in our database
-// returns six digit user_id if match, empty string if no match found
-
-const isEmailAlreadyUsed = (email) => {
-  let user_id = '';
-  for (const user in users) {
-    if (users[user].email === email) {
-      user_id = user;
-    }
-  }
-  return user_id;
-};
-
-// Function that filters the url Database and creates an object
-// of URLS that match the given user_id, 
-// in the form of { shortURL: longURL } key value pairs.
-
-const userUrls = (user_id) => {
-  const output = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url].userID === user_id) {
-      output[url] = urlDatabase[url].longURL;
-    }
-  }
-  return output;
-}; 
-
-// Function that checks whether a person is logged in as registered user
-// Takes user_id and makes sure users[user_id] = truthy;
-
-const isCookieValid = user_id => users[user_id] !== undefined;
-
 
 //----------------------------------//
-
+// GET and POST requests
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
 
   const templateVars = {
-    urls: userUrls(req.session.user_id),
+    urls: userUrls(req.session.user_id, urlDatabase),
     'user_id': users[req.session.user_id]
   }
   res.render("urls_index", templateVars);
@@ -100,7 +65,7 @@ app.get("/urls", (req, res) => {
 // them to access this page
 app.get("/urls/new", (req, res) => {
 
-  if (isCookieValid(req.session.user_id)) {
+  if (isCookieValid(req.session.user_id, users)) {
     const templateVars = {
       'user_id'  : users[req.session.user_id]
     }
@@ -115,7 +80,7 @@ app.get("/urls/new", (req, res) => {
 // POST function for new url page
 app.post("/urls/new", (req, res) => {
 
-  if (isCookieValid(req.session.user_id)) {
+  if (isCookieValid(req.session.user_id, users)) {
     newShortUrl = generateRandomString();
 
     urlDatabase[newShortUrl] = { 
@@ -185,8 +150,8 @@ app.get("/login", (req, res) => {
 
 // login POST function;
 app.post("/login", (req, res) => {
-  const user_id = isEmailAlreadyUsed(req.body.email);
-
+  const user = getUserByEmail(req.body.email, users);
+  const user_id = user.id;
 
   if (user_id) {
     const passwordEntry = req.body.password;
@@ -239,7 +204,7 @@ app.post("/register", (req, res) => {
     res.end('put in proper email and password');
   }
   
-  else if (isEmailAlreadyUsed(req.body.email)) {
+  else if (getUserByEmail(req.body.email, users)) {
     res.statusCode = 404;
     res.end('email Already used');
   }
