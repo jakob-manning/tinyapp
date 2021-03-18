@@ -58,19 +58,6 @@ const isEmailAlreadyUsed = (email) => {
 // Function that checks whether a person is logged in as registered user
 // Takes user_id and makes sure users[user_id] = truthy;
 
-// 
-// // const user_id = req.cookies['user_id'];
-// if (isCookieValid(req.cookies['user_id'])) {
-//   const templateVars = {
-//     'user_id'  : users[req.cookies['user_id']]
-//   }
-//   res.render("urls_new", templateVars);
-// }
-
-// else {
-//   res.redirect("/login");
-// }
-
 const isCookieValid = user_id => users[user_id] !== undefined;
 
 
@@ -142,27 +129,31 @@ app.get("/urls/:shortURL", (req, res) => {
 // Delete an existing url
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls/`);
+  res.redirect(`/urls`);
 });
 
 // Edit an existing url
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id].longURL = req.body.longURL;
-  res.redirect(`/urls/`);
+  if (urlDatabase[req.params.id].userID === req.cookies['user_id']) {
+    urlDatabase[req.params.id].longURL = req.body.longURL;
+    res.redirect(`/urls`);
+  }
+  else {
+    res.redirect(`/login`);
+  }
+
 });
-
-
 
 // 'get' the given short url page which redirects the page to the longURL
 // basically, the /urls/:shortURL has a href which directs to this page, which then uses
 // this function to direct to the actual longURL page.
 // This page should be accessable for all users, whether logged in or not
-
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
+// 'get' page for login
 app.get("/login", (req, res) => {
   const templateVars = {
     'user_id'  : users[req.cookies['user_id']]
@@ -194,7 +185,7 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   // console.log(users['user_id'])
   res.clearCookie('user_id');
-  res.redirect('/urls/');
+  res.redirect('/urls');
 });
 
 // 'get the register new user page:
