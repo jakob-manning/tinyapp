@@ -17,13 +17,13 @@
     
     </div>
 
-    <% if(user_id) { %>
+    <% if(user) { %>
       <form class action="/logout" method="POST">
-        <p>Hello, <b><%= user_id.email   %>! </b>
+        <p>Hello, <b><%= user.email   %>! </b>
         <button type="submit" class="btn-info">Logout</button></p>
       </form>
     <% } %>
-    <% if(user_id === undefined) { %>
+    <% if(!user) { %>
       <form action="/login" method="GET">
         <label for="login"> Login Here! </label>
         <button type="submit" class="btn-info">Login</button></p>

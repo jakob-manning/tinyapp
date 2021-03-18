@@ -7,7 +7,7 @@ const generateRandomString = () => {
 
 // This function is used to check whether an email given by user
 // matches an email already stored in our database
-// returns six digit user_id if match, empty string if no match found
+// returns six digit user_id if match, false if no match found
 
 const getUserByEmail = (email, database) => {
 
@@ -34,9 +34,16 @@ const userUrls = (user_id, database) => {
   return output;
 }; 
 
-// Function that checks whether a person is logged in as registered user
-// Takes user_id and makes sure users[user_id] = truthy;
+// Function that gets given a user ID, and returns the user info if valid,
+// and returns false if wrong
 
-const isCookieValid = (user_id, database) => database[user_id] !== undefined;
+const isUserValid = (user_id, database) => {
+  if (!database[user_id]) {
+    return false;
+  };
+  if (database[user_id]) {
+    return database[user_id];
+  }
+}
 
-module.exports = {generateRandomString, getUserByEmail, userUrls, isCookieValid }
+module.exports = {generateRandomString, getUserByEmail, userUrls, isUserValid }
