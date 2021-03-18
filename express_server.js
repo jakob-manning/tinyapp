@@ -114,9 +114,29 @@ app.get("/urls/new", (req, res) => {
 
 // POST function for new url page
 app.post("/urls/new", (req, res) => {
-  newShortUrl = generateRandomString();
-  urlDatabase[newShortUrl] = req.body.longURL; 
-  res.redirect(`/urls/${newShortUrl}`);
+
+  if (isCookieValid(req.cookies['user_id'])) {
+    newShortUrl = generateRandomString();
+
+    urlDatabase[newShortUrl] = { 
+      'longURL': req.body.longURL, 
+      'userID': req.cookies['user_id']
+    }; 
+    res.redirect(`/urls/${newShortUrl}`);
+  }
+
+});
+
+// 'get' the generated shortURL page
+app.get("/urls/:shortURL", (req, res) => {
+
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL].longURL,
+    'user_id': users[req.cookies['user_id']]
+  }
+
+  res.render("urls_show", templateVars);
 });
 
 // Delete an existing url
@@ -127,21 +147,19 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Edit an existing url
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect(`/urls/`);
 });
 
-// 'get' the generated shortURL page
-app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], 'user_id'  : users[req.cookies['user_id']]};
-  res.render("urls_show", templateVars);
-});
+
 
 // 'get' the given short url page which redirects the page to the longURL
 // basically, the /urls/:shortURL has a href which directs to this page, which then uses
 // this function to direct to the actual longURL page.
+// This page should be accessable for all users, whether logged in or not
+
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
