@@ -53,7 +53,7 @@ const users = {
 
 // 'get' the home page which displays all stored urls;
 app.get("/urls", (req, res) => {
-
+  console.log(urlDatabase)
   const templateVars = {
     urls: userUrls(req.session.user_id, urlDatabase),
     'user_id': users[req.session.user_id]
@@ -61,7 +61,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// 'get' the add new url page. If they are not logged in, do not alow 
+// 'get' the 'add new url' page. If they are not logged in, do not alow 
 // them to access this page
 app.get("/urls/new", (req, res) => {
 
@@ -77,7 +77,9 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-// POST function for new url page
+// POST function for new url page: function adds given url into url database
+// with the longurl and the userID of person logged in.
+// The function will not run for non-registered users
 app.post("/urls/new", (req, res) => {
 
   if (isCookieValid(req.session.user_id, users)) {
@@ -90,18 +92,38 @@ app.post("/urls/new", (req, res) => {
     res.redirect(`/urls/${newShortUrl}`);
   }
 
-});
-
-// 'get' the generated shortURL page
-app.get("/urls/:shortURL", (req, res) => {
-
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    'user_id': users[req.session.user_id]
+  else {
+    res.redirect("/login");
   }
 
-  res.render("urls_show", templateVars);
+});
+
+// 'get' the generated shortURL page. Page displays the short and long url.
+// return forbidden access error if not logged in
+// returns invalid 'tinyURL given' if given a tinyURL that doesn't exist
+app.get("/urls/:id", (req, res) => {
+
+  if (urlDatabase[req.params.id]) {
+    if (urlDatabase[req.params.id].userID === req.session.user_id) {
+      const templateVars = {
+        shortURL: req.params.id,
+        longURL: urlDatabase[req.params.id].longURL,
+        'user_id': users[req.session.user_id]
+      }
+      res.render("urls_show", templateVars);
+    }
+
+    else {
+      res.statusCode = 403;
+      res.end('Please login, you do not have access to this page');
+    }
+  }
+
+  else {
+    res.statusCode = 404;
+    res.end('Invalid tinyURL given');
+  }
+
 });
 
 // Delete an existing url
@@ -135,9 +157,15 @@ app.post("/urls/:id", (req, res) => {
 // basically, the /urls/:shortURL has a href which directs to this page, which then uses
 // this function to direct to the actual longURL page.
 // This page should be accessable for all users, whether logged in or not
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+app.get("/u/:id", (req, res) => {
+  if (urlDatabase[req.params.id]) {
+    const longURL = urlDatabase[req.params.id].longURL;
+    res.redirect(longURL);
+  }
+  else {
+    res.statusCode = 404;
+    res.end('Sorry, page not found. Please check the url given is valid');
+  }
 });
 
 // 'get' page for login
