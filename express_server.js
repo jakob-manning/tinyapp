@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
+const bcrypt = require('bcrypt');
+
 
 const morgan = require('morgan');
 const bodyParser = require("body-parser");
@@ -20,16 +22,19 @@ const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "eeeeee" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "eeeeee" }
 };
+
+const password1 = bcrypt.hashSync('e', 10);
+const password2 = bcrypt.hashSync('2', 10);
 const users = { 
   "eeeeee": {
     id: "eeeeee", 
     email: "e@e.e",
-    password: "e"
+    password: password1
   },
- "abcdef": {
-    id: "abcdef", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
+ "222222": {
+    id: "222222", 
+    email: "2@2.2", 
+    password: password2
   }
 };
 // ----------------------------------//
@@ -85,7 +90,7 @@ app.get("/urls", (req, res) => {
     urls: userUrls(req.cookies['user_id']),
     'user_id': users[req.cookies['user_id']]
   }
-
+  console.log(users);
   res.render("urls_index", templateVars);
 });
 
@@ -177,8 +182,11 @@ app.get("/login", (req, res) => {
 
 // login POST function;
 app.post("/login", (req, res) => {
-  user_id = isEmailAlreadyUsed(req.body.email);
-  if (user_id && req.body.password === users[user_id].password) {
+  const user_id = isEmailAlreadyUsed(req.body.email);
+  const passwordEntry = req.body.password;
+  const passwordStored = users[user_id].password;
+
+  if (user_id && bcrypt.compareSync(passwordEntry, passwordStored)) {
       res.cookie('user_id', user_id);
       res.redirect('/urls');
       console.log(users[id]);
